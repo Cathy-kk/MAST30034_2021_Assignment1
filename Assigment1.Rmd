@@ -1,0 +1,33 @@
+---
+title: "ADS_Assignment"
+output: html_document
+---
+
+Q1
+```{r}
+#Q1.1
+TC_par<- par(mfrow=c(2,3))
+TC_1<- c(rep(rep(c(1,-1), each =15), 8))
+plot(TC_1, type='l')
+TC_2<- c(rep(-1,20), rep(rep(c(1,-1),c(20,25)), length.out=220))
+plot(TC_2, type='l')
+TC_3 <- c(rep(rep(c(1,-1), c(25, 60-25)), length.out=240))
+plot(TC_3, type='l')
+TC_4 <- c(rep(rep(c(1,-1), c(15, 40-15)), length.out=240))
+plot(TC_4, type='l')
+TC_5 <- c(rep(rep(c(1,-1), c(20, 40-20)), length.out=240))
+plot(TC_5, type='l')
+TC_6 <- c(rep(rep(c(1,-1), c(25, 40-25)), length.out=240))
+plot(TC_6, type='l')
+par(TC_par)
+(TC <- matrix(c(TC_1, TC_2, TC_3, TC_4, TC_5, TC_6), 240,6))
+TC <- scale(TC, center = FALSE)
+```
+
+```{r}
+# install.packages("corrplot")
+library(corrplot)
+par(mfrow = c(1,1))
+corrplot(cor(TC), method="color")
+#heatmap(cor(TC), Colv = NA, Rowv = NA, sideColors=TRUE)
+```
