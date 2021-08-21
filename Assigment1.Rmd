@@ -23,11 +23,90 @@ par(TC_par)
 (TC <- matrix(c(TC_1, TC_2, TC_3, TC_4, TC_5, TC_6), 240,6))
 TC <- scale(TC, center = FALSE)
 ```
-
+Q2
 ```{r}
 # install.packages("corrplot")
 library(corrplot)
 par(mfrow = c(1,1))
 corrplot(cor(TC), method="color")
 #heatmap(cor(TC), Colv = NA, Rowv = NA, sideColors=TRUE)
+```
+
+Q3
+```{r}
+library(reshape2)
+library(ggplot2)
+library('plot.matrix')
+par(mfrow=c(2,3))
+SM_1<- matrix(rep(0, 441), 21,21)
+SM_1[c(2:6), c(2:6)] <- 1
+#plot(SM_1, border=NA)
+corrplot(SM_1, method="color",col=colorRampPalette(c("blue","red","yellow"))(200))
+
+SM_2<- matrix(rep(0, 441), 21,21)
+SM_2[c(2:6), c(15:19)] <- 1
+corrplot(SM_2, method="color",col=colorRampPalette(c("blue","red","yellow"))(200))
+
+SM_3<- matrix(rep(0, 441), 21,21)
+SM_3[c(8:13), c(2:6)] <- 1
+corrplot(SM_3, method="color",col=colorRampPalette(c("blue","red","yellow"))(200))
+
+SM_4<- matrix(rep(0, 441), 21,21)
+SM_4[c(8:13), c(15:19)] <- 1
+corrplot(SM_4, method="color",col=colorRampPalette(c("blue","red","yellow"))(200))
+
+SM_5<- matrix(rep(0, 441), 21,21)
+SM_5[c(15:19), c(2:6)] <- 1
+corrplot(SM_5, method="color",col=colorRampPalette(c("blue","red","yellow"))(200))
+
+SM_6<- matrix(rep(0, 441), 21,21)
+SM_6[c(15:19), c(15:19)] <- 1
+corrplot(SM_6, method="color",col=colorRampPalette(c("blue","red","yellow"))(200))
+
+SM <- matrix(c(as.vector(SM_1), as.vector(SM_2), as.vector(SM_3), as.vector(SM_4), as.vector(SM_5), as.vector(SM_6)), 6, 441)
+
+library(corrplot)
+par(mfrow = c(1,1))
+corrplot(cor(t(SM)), method="color")
+```
+
+Q4
+```{r}
+set.seed(123)
+par(mfrow=c(1,2))
+TC_noise <- matrix(rnorm(240*6, mean=0, sd=0.5), 240,6)
+plot.ts(TC_noise[,1])
+TC_noise_cor <- cor(TC_noise)
+corrplot(TC_noise_cor, method='color', addCoef.col="black", title="CM for TC noise", mar=c(0,0,1,0))
+
+SM_noise <- matrix(rnorm(6*441, mean=0, sd=sqrt(0.015)), 6, 441)
+SM_noise_cor <- cor(t(SM_noise))
+corrplot(SM_noise_cor, method='color', addCoef.col="black", title="CM for SM noise",mar=c(0,0,1,0))
+
+# plot the histogram for both noise source
+hist(as.vector(TC_noise), prob=TRUE)
+lines(density(as.vector(TC_noise)))
+
+hist(as.vector(t(SM_noise)), prob=TRUE)
+lines(density(as.vector(t(SM_noise))))
+
+# visualize the correlation between the noise product and observed variables
+noise_product <- TC_noise%*%SM_noise
+corrplot(cor(noise_product), method="color")
+```
+
+Q1.5
+```{r}
+X <- (TC+TC_noise)%*%(SM+SM_noise)
+
+# check the cross product
+tc_sNoise <- TC%*%SM_noise
+
+# get sample
+sample<-X[, sample(ncol(X), size=10, replace=FALSE), drop=FALSE]
+plot.ts(sample,gpars= list(col=rainbow(10)))
+
+# calculate variance of all variables
+library(matrixStats)
+X_var<- colVars(X)
 ```
