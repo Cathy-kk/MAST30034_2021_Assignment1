@@ -12,8 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 #install.packages("corrplot")
-install.packages("factoextra")
-nolibrary('plot.matrix')
+#install.packages("factoextra")
+library('plot.matrix')
 library(corrplot)
 library(reshape2)
 library(ggplot2)
@@ -23,10 +23,12 @@ library("factoextra")
 
  
 Question 1
+
 Q1.1
 ```{r}
 # create TC sources
 par(mfrow=c(2,3))
+par(mar=c(5.1, 2.1, 2.1, 2.1))
 TC_1<- c(rep(rep(c(1,0), each =15), 8))
 TC_2<- c(rep(0,20), rep(rep(c(1,0),c(20,25)), length.out=220))
 TC_3 <- c(rep(rep(c(1,0), c(25, 60-25)), length.out=240))
@@ -36,6 +38,7 @@ TC_6 <- c(rep(rep(c(1,0), c(25, 40-25)), length.out=240))
 TC <- matrix(c(TC_1, TC_2, TC_3, TC_4, TC_5, TC_6), 240,6)
 TC <- scale(TC)
 TC_title<- c("TC_1", "TC_2", "TC_3", "TC_4", "TC_5", "TC_6")
+
 # plot TC sources
 for (i in (1:6)){
   plot(TC[,i], type='l', xlab="", ylab="", main=TC_title[i])
@@ -44,19 +47,20 @@ for (i in (1:6)){
 ```
 
 ```{r}
-# normalize TC with L-2 norm
+# we normalize TC with L-2 norm, plot all TC after normalization
 par(mfrow=c(2,3))
 TC_normal <- matrix(c(TC_1, TC_2, TC_3, TC_4, TC_5, TC_6), 240,6)
 for (i in (1:6)){
   TC_normal[,i] <- TC_normal[,i]/sqrt(sum(TC_normal[,i]**2))
   plot(TC_normal[,i], type='l', xlab="", ylab="", main=TC_title[i])
-
 }
 ```
 
+Data are in range around 0 to 0.1.
+
 Q 1.2
 ```{r}
-# plot correaltion matrix of TC 
+# plot correlation matrix of TC 
 par(mfrow = c(1,1))
 par(mar=c(5.1, 4.1, 4.1, 4.1))
 plot(cor(TC), main="Correlation of time sources")
@@ -64,48 +68,91 @@ plot(cor(TC), main="Correlation of time sources")
 
 Q 1.3
 ```{r}
-# create 6 SMs and plot them out
+# create 6 tmpSMs and plot them out
 par(mfrow=c(2,3))
 tmpSM_1<- matrix(rep(0, 441), 21,21)
 tmpSM_1[c(2:6), c(2:6)] <- 1
-plot(tmpSM_1, border=NA)
+plot(tmpSM_1, border=NA,xlab="", ylab="")
 
 tmpSM_2<- matrix(rep(0, 441), 21,21)
 tmpSM_2[c(2:6), c(15:19)] <- 1
-plot(tmpSM_2, border=NA)
+plot(tmpSM_2, border=NA, xlab="", ylab="")
 
 tmpSM_3<- matrix(rep(0, 441), 21,21)
 tmpSM_3[c(8:13), c(2:6)] <- 1
-plot(tmpSM_3, border=NA)
+plot(tmpSM_3, border=NA, xlab="", ylab="")
 
 tmpSM_4<- matrix(rep(0, 441), 21,21)
 tmpSM_4[c(8:13), c(15:19)] <- 1
-plot(tmpSM_4, border=NA)
+plot(tmpSM_4, border=NA, xlab="", ylab="")
 
 tmpSM_5<- matrix(rep(0, 441), 21,21)
 tmpSM_5[c(15:19), c(2:6)] <- 1
-plot(tmpSM_5, border=NA)
+plot(tmpSM_5, border=NA, xlab="", ylab="")
 
 tmpSM_6<- matrix(rep(0, 441), 21,21)
 tmpSM_6[c(15:19), c(15:19)] <- 1
-plot(tmpSM_6, border=NA)
+plot(tmpSM_6, border=NA, xlab="", ylab="")
 ```
 
 ```{r}
 # plot the correlation matrix of SM
 par(mfrow = c(1,1))
-par(mar=c(3.1, 4.1, 4.1, 4.1))
 
 tmpSM <- matrix(c(as.vector(tmpSM_1), as.vector(tmpSM_2), as.vector(tmpSM_3), as.vector(tmpSM_4), as.vector(tmpSM_5), as.vector(tmpSM_6)), 6, 441, byrow = TRUE)
 
-corrplot(cor(t(tmpSM)),title = "Correlation Matrix of tmpSM", addCoef.col="black", method="color")
+corrplot(cor(t(tmpSM)), addCoef.col="black", method="color")
 ```
+Plots shows tmpSM are independent to each other.
 
+Explore why not standardize tmpSM
+```{r}
+# means and variance of SM source
+rowMeans(tmpSM)
+rowVars(tmpSM)
+par(mfrow=c(2,3))
+SM_standard_title <-c("SM_standard_1","M_standard_2","M_standard_3","M_standard_4","M_standard_5","M_standard_6")
+for (i in 1:6){
+  plot(matrix(scale(tmpSM[i,]), 21, 21), border=NA, xlab="", ylab="", main=SM_standard_title[i])
+}
+```
+```{r}
+# visualize pixel value 5 and 1
+par(mfrow=c(1,2))
+par(mar=c(5.1, 4.1, 4.1, 4.1))
+tmpSM_1.new<- matrix(rep(0, 441), 21,21)
+tmpSM_1.new[c(2:6), c(2:6)] <- 1
+tmpSM_1.new[2,2] <- 5
+plot(tmpSM_1.new, border=NA,xlab="", ylab="")
+plot(matrix(scale(as.vector(tmpSM_1.new)), 21,21))
+(mean(as.vector(tmpSM_1.new)))
+
+tmpSM_2<- matrix(rep(0, 441), 21,21)
+tmpSM_2[c(2:6), c(15:19)] <- 1
+plot(tmpSM_2, border=NA, xlab="", ylab="")
+
+tmpSM_3<- matrix(rep(0, 441), 21,21)
+tmpSM_3[c(8:13), c(2:6)] <- 1
+plot(tmpSM_3, border=NA, xlab="", ylab="")
+
+tmpSM_4<- matrix(rep(0, 441), 21,21)
+tmpSM_4[c(8:13), c(15:19)] <- 1
+plot(tmpSM_4, border=NA, xlab="", ylab="")
+
+tmpSM_5<- matrix(rep(0, 441), 21,21)
+tmpSM_5[c(15:19), c(2:6)] <- 1
+plot(tmpSM_5, border=NA, xlab="", ylab="")
+
+tmpSM_6<- matrix(rep(0, 441), 21,21)
+tmpSM_6[c(15:19), c(15:19)] <- 1
+plot(tmpSM_6, border=NA, xlab="", ylab="")
+
+```
 Q 1.4
 ```{r}
 # create noise and plot correlation matrix for TC 
-set.seed(123)
-par(mfrow=c(1,2))
+set.seed(30034)
+par(mfrow=c(1,1))
 TC_noise <- matrix(rnorm(240*6, mean=0, sd=sqrt(0.25)), 240,6)
 TC_noise_cor <- cor(TC_noise)
 corrplot(TC_noise_cor, method='color', addCoef.col="black", title="CM for TC noise", mar=c(0,0,1,0))
@@ -116,44 +163,45 @@ tmpSM_noise_cor <- cor(t(tmpSM_noise))
 corrplot(tmpSM_noise_cor, method='color', addCoef.col="black", title="CM for SM noise",mar=c(0,0,1,0))
 ```
 
-as the plots shown, the noise of both two sources are independent.
+As the plots shown, the noise of both two sources are independent.
 
 ```{r}
 # plot the histogram for both noise source and add distribution curve
-hist(as.vector(TC_noise), prob=TRUE)
-curve(dnorm(x, mean=0, sd = sqrt(1.96*0.25)), col="red", lwd=2, add=TRUE)
+hist(as.vector(TC_noise),xlab = "TC noise", main="Distribution of TC noise", prob=TRUE)
+curve(dnorm(x, mean=0, sd = sqrt(1.96*0.25)),col="red", lwd=2, add=TRUE )
 
-hist(as.vector(t(tmpSM_noise)), prob=TRUE)
+hist(as.vector(t(tmpSM_noise)),xlab = "SM noise", main="Distribution of SM noise", prob=TRUE)
 curve(dnorm(x, mean=0, sd = sqrt(1.96*0.015)), col="red", lwd=2, add=TRUE)
 ```
 
-Both TC and tmpSM noise look have a normal distributuion, and satisfied the 1.96$\sigma$.
+Both TC and tmpSM noise look have a normal distrbution, and satisfied the 1.96$\sigma$.
 
 ```{r}
 # visualize the correlation between the noise product and observed variables
 par(mfrow = c(1,1))
 par(mar=c(5.1, 4.1, 4.1, 4.1))
 noise_product <- TC_noise%*%tmpSM_noise
-corrplot(cor(noise_product), method="color")
+corrplot(cor(noise_product), method="color", tl.pos = 'n')
 ```
 
-The correlation heap map show non correlation
+The correlation heap map show non correlation, noise are independent.
 
 Q1.5
 ```{r}
+# build X dataset
 X <- (TC+TC_noise)%*%(tmpSM+tmpSM_noise)
 
-# check the cross product
+# check the dimension of each matrix
 (dim(TC))
 (dim(tmpSM_noise))
 (dim(TC_noise))
 (dim(tmpSM))
 ```
 
-The products exists.
+The dimension of each matrix shows that TC*tmpSM_noise and TC_noise*tmpSM exists.
 
 ```{r}
-# get sample
+# get 100 sample variables
 set.seed(123)
 par(mfrow = c(1,1))
 par(mar=c(5.1, 4.1, 4.1, 4.1))
@@ -161,62 +209,48 @@ sample<-data.frame(n=1:240, X[, sample(ncol(X), size=100)])
 
 # plot the sample
 sample_gg <- melt(sample, id.vars="n")
-ggplot(sample_gg, aes(x=n, y=value, col=variable))+ geom_line()
+ggplot(sample_gg, aes(x=n, y=value, col=variable))+ geom_line()+ labs(x="time point")
 ```
 
 ```{r}
 # calculate variance of all variables
 plot(colVars(X), xlab="variable", ylab="variance", main="Variance of all variables")
+
+# scale X data
 X<- scale(X)
 ```
 
-Q2
+Question 2
 
 Q2.1
 ```{r}
 D <- TC
 # retrieve A by LSR
-A_lsr <- solve(t(D)%*%D)%*%t(D)%*%X
+A_lsr <- abs(solve(t(D)%*%D)%*%t(D)%*%X)
 # retrieve D by LSR
 D_lsr <- X%*%t(A_lsr)
 ```
 
 ```{r}
-# plot retrieval sources
+# plot all retrieval sources
 par(mfrow=c(1,2))
-par(mar=c(5.1, 4.1, 4.1, 4.1))
-plot(matrix(abs(A_lsr[1,]), 21,21),border=NA,xlab="", ylab="",  main="A_lsr_1")
-plot(D_lsr[,1], type='l', xlab="", ylab="", main="D_lsr1")
-
-plot(matrix(abs(A_lsr[2,]), 21,21), border=NA, xlab="", ylab="",
-     main="A_lsr_2")
-plot(D_lsr[,2], type='l', xlab="", ylab="", main="D_lsr2")
-
-plot(matrix(abs(A_lsr[3,]), 21,21), border=NA,xlab="", ylab="",
-     main="A_lsr_3")
-plot(D_lsr[,3], type='l', xlab="", ylab="", main="D_lsr3")
-
-plot(matrix(abs(A_lsr[4,]), 21,21), border=NA,xlab="", ylab="",
-     main="A_lsr_4")
-plot(D_lsr[,4], type='l', xlab="", ylab="", main="D_lsr4")
-
-plot(matrix(abs(A_lsr[5,]), 21,21), border=NA,xlab="", ylab="",
-     main="A_lsr_5")
-plot(D_lsr[,5], type='l', xlab="", ylab="", main="D_lsr5")
-
-plot(matrix(abs(A_lsr[6,]), 21,21), border=NA,xlab="", ylab="",
-     main="A_lsr_6")
-plot(D_lsr[,6], type='l', xlab="", ylab="", main="D_lsr6")
+par(mar=c(5.1, 2.1, 4.1, 4.1))
+A_lsr_title <-c("A_lsr_1","A_lsr_2","A_lsr_3","A_lsr_4","A_lsr_5","A_lsr_6")
+D_lsr_title <- c("D_lsr_1","D_lsr_2","D_lsr_3","D_lsr_4","D_lsr_5","D_lsr_6")
+for (i in 1:6){
+  plot(matrix(A_lsr[i,], 21,21),border=NA,xlab="", ylab="",  main=A_lsr_title[i])
+  plot(D_lsr[,i], type='l', xlab="", ylab="", main=D_lsr_title[i])
+}
 ```
 
 ```{r}
-# scatter plot bewtween 3rd column of D_lsr and 30th column of X
+# scatter plot between 3rd column of D_lsr and 30th column of X
 par(mfrow = c(1,1))
 par(mar=c(5.1, 4.1, 4.1, 4.1))
 plot(D_lsr[,3], X[,30], xlab="3rd column of D_lsr", ylab="30th column of X")
 
 # check which spatial signal stay at 1
-(temSM[,30])
+(tmpSM[,30])
 ```
 
 since only the third regressor is actived, which means the TC_3 makes contributions to 30th columns of X
@@ -225,110 +259,132 @@ Q2.2
 ```{r}
 # select $\lambda\$ by using check and guess method
 D <- TC
-# retrieve A by LSR
 
 #randomly generate lamda
 set.seed(30034)
 (lambda <- runif(1,0,1))
-A_rr <- solve(t(D)%*%D + lambda*441*diag(6))%*%t(D)%*%X
-# retrieve D by LSR
+A_rr_random <- abs(solve(t(D)%*%D + lambda*441*diag(6))%*%t(D)%*%X)
+# try using other lambda =0.5
+A_rr <- abs(solve(t(D)%*%D + 0.5*441*diag(6))%*%t(D)%*%X)
+# estimate D with new A_rr
+D_rr_random <- X%*%t(A_rr_random)
 D_rr <- X%*%t(A_rr)
 ```
 
+The $\lambda\$ we use is 0.8990044。
+
+
 ```{r}
-# calculate 
-cor_tlse <- cor(D_lsr, TC)
-max_cor <- max.col(abs(cor_tlse))
+# calculate and store maximum correlation of each source
 Ctlsr <- rep(NA, 6)
+Ctrr_ran <- rep(NA,6)
+Ctrr <- rep(NA, 6)
 for (i in (1:6)){
-  Ctlsr[i] <- abs(cor_tlse)[max_cor[i], i]
+  Ctlsr[i] <- abs(cor(D_lsr, TC))[i, i]
+  Ctrr[i] <- abs(cor(D_rr, TC))[i, i]
+  Ctrr_ran[i] <- abs(cor(D_rr_random, TC))[i,i]
 }
 
 Ctlsr
-```
-```{r}
-cor_trr <- cor(D_rr, TC)
-max_cor <- max.col(abs(cor_trr))
-Ctrr <- rep(NA, 6)
-for (i in (1:6)){
-  Ctrr[i] <- abs(cor_trr)[max_cor[i], i]
-}
-
 Ctrr
+Ctrr_ran
 ```
 
+
 ```{r}
+# calculate the sum of the maximum correlation score
 (sum(Ctlsr))
 (sum(Ctrr))
+(sum(Ctrr_ran))
+paste("Ctlsr is less than Ctrr_random:", sum(Ctlsr)<sum(Ctrr_ran))
+paste("Ctlsr is less than Ctrr:", sum(Ctlsr)<sum(Ctrr))
+paste("Ctrr_random is less than Ctrr:", sum(Ctrr_ran)<sum(Ctrr))
 ```
 
+model with $\lambda$ = 0.5 performs better, use A_rr.
+
 ```{r}
-A_rr_1000 <- solve(t(D)%*%D + 1000*441*diag(6))%*%t(D)%*%X
-plot(A_rr_1000[1,], type='l')
-plot(A_lsr[1,], type='l')
+# plot the absolute first vector from Arr with applied lambda= 1000
+par(mfrow = c(1,1))
+par(mar=c(5.1, 4.1, 4.1, 4.1))
+A_rr_1000 <- abs(solve(t(D)%*%D + 1000*441*diag(6))%*%t(D)%*%X)
+plot(A_lsr[1,], type='l', ylab="", main = "First A_lsr")
+plot(A_rr_1000[1,], type='l',  ylab="", main = "First A_rr with lambda 1000")
+
 ```
+All value in first vector of Arr shrinking towards zero.
 
 Q2.3
 ```{r}
-# remove set seed
 rm(.Random.seed, envir=globalenv())
 
 # code for perform LR
 MSE_lr <- array(NA, c(10, 21))
+# The candidates of rho
 rho <- seq(0,1,0.05)
+
+# do 10 realization, each time with different X
 for (realization in 1:10){
   if (realization==1) X_lr <-X
   else {
+    # generate new noise to retireve new X
     TC_noise_lr <- matrix(rnorm(240*6, mean=0, sd=sqrt(0.25)), 240,6)
     SM_noise_lr <- matrix(rnorm(6*441, mean=0, sd=sqrt(0.015)), 6,441)
     X_lr <- (TC + TC_noise_lr)%*%(tmpSM + SM_noise_lr)
     X_lr <- scale(X_lr)
   }
-for(rr in 1:21){
+  # perform Lasso algorithm for each rho
+  for(rr in 1:21){
   
-  step <- 1/(norm(TC %*% t(TC)) * 1.1)
-  thr <- rho[rr]*240*step
-  nsrcs <- 6
-  Ao <- matrix(0, nsrcs, 1)
-  A <- matrix(0, nsrcs, 1)
-  Alr <- matrix(0, nsrcs, 21*21)
+    step <- 1/(norm(TC %*% t(TC)) * 1.1)
+    thr <- rho[rr]*240*step
+    nsrcs <- 6
+    Ao <- matrix(0, nsrcs, 1)
+    A <- matrix(0, nsrcs, 1)
+    Alr <- matrix(0, nsrcs, 21*21)
 
-  for (k in 1:(21*21)) {
-    A <- Ao+step*(t(TC) %*% (X_lr[,k]-(TC%*%Ao)))
-    A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
-  
-    for (i in 1:10) {
-      Ao <- A
-      A <- Ao+step * (t(TC)%*%(X_lr[,k]-(TC%*%Ao)))
+    for (k in 1:(21*21)) {
+      A <- Ao+step*(t(TC) %*% (X_lr[,k]-(TC%*%Ao)))
       A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
+  
+      for (i in 1:10) {
+        Ao <- A
+        A <- Ao+step * (t(TC)%*%(X_lr[,k]-(TC%*%Ao)))
+        A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
+      }
+      Alr[,k] <- A
     }
-    Alr[,k] <- A
+  # calculate MSE of each rho
+    Alr <- abs(Alr)
+    Dlr <- X_lr%*%t(Alr)
+    MSE <- sum((X_lr-Dlr%*%Alr)**2)/(240*441)
+    MSE_lr[realization, rr] <- MSE
   }
-  # calculate MSE 
-  Dlr <- X_lr%*%t(Alr)
-  MSE <- sum((X_lr-Dlr%*%Alr)**2)/(240*441)
-  MSE_lr[realization, rr] <- MSE
-}
 }
 ```
 
 ```{r}
+# calculate the mean MSE and plot out
 avg_MSE_lr <- colMeans(MSE_lr)
-plot(rho, avg_MSE_lr)
+plot(rho, avg_MSE_lr, main="the avergae MSE of each rho")
 ```
 
 ```{r}
 (avg_MSE_lr)
-(index <- which.min(avg_MSE_lr))
-(min_MSE<- avg_MSE_lr[index])
-(rho_lr <- rho[index])
+# get the location of rho that has minimum MSE
+index <- which.min(avg_MSE_lr)
+paste("The minimum average MSE is",  avg_MSE_lr[index])
+
+# get rho value
+rho_lr <- rho[index]
+paste("The value of rho with minimum MSE is",rho_lr)
 ```
 
-At the minimum MSE, \rho = 0.6, the value of average MSE is 0.4599621
+At the minimum MSE, \rho = 0.6, the value of average MSE is 0.7659844
 
 Q2.4
 ```{r}
-# use rho_lr = 0.7, estimate A_lr parameter
+# use rho_lr = 0.6, estimate A_lr parameter
 step <- 1/(norm(TC %*% t(TC)) * 1.1)
 thr <- rho_lr*240*step
 Ao <- matrix(0, nsrcs, 1)
@@ -348,45 +404,29 @@ for (k in 1:(21*21)) {
 }
 
 # use A_lr to estimate D_lr
+A_lr <- abs(A_lr)
 D_lr <- X%*%t(A_lr)
 ```
 
 ```{r}
-# get Csrr
-cor_srr <- cor(t(A_rr), t(tmpSM))
-max_cor <- max.col(abs(cor_srr))
+# compute all four correlation vector
+Ctrr <- rep(NA, 6)
 Csrr <- rep(NA, 6)
-for (i in (1:6)){
-  Csrr[i] <- abs(cor_srr)[max_cor[i], i]
-}
-
-Csrr
-```
-
-```{r}
-#get Ctlr
-cor_tlr <- cor(D_lr, TC)
-max_cor <- max.col(abs(cor_tlr))
 Ctlr <- rep(NA, 6)
-for (i in (1:6)){
-  Ctlr[i] <- abs(cor_tlr)[max_cor[i], i]
-}
-
-Ctlr
-```
-
-```{r}
-# get Cslr
-cor_slr <- cor(t(A_lr), t(tmpSM))
-max_cor <- max.col(abs(cor_slr))
 Cslr <- rep(NA, 6)
 for (i in (1:6)){
-  Cslr[i] <- abs(cor_slr)[max_cor[i], i]
+  Ctrr[i] <- abs(cor(D_rr, TC))[i, i]
+  Csrr[i] <- abs(cor(t(A_rr), t(tmpSM)))[i, i]
+  Ctlr[i] <- abs(cor(D_lr, TC))[i, i]
+  Cslr[i] <- abs(cor(t(A_lr), t(tmpSM)))[i, i]
+
 }
 
+Ctrr
+Csrr
+Ctlr
 Cslr
 ```
-
 
 ```{r}
 # sum of four correlation vector
@@ -394,6 +434,9 @@ Cslr
 (sum_Csrr<-sum(Csrr))
 (sum_Ctlr<-sum(Ctlr))
 (sum_Cslr<-sum(Cslr))
+
+paste("Ctrr is less than Ctlr:", sum_Ctrr<sum_Ctlr)
+paste("Csrr is less than Cslr:", sum_Csrr<sum_Cslr)
 ```
 
 sum of Ctlr and Cslr are both larger than Ctrr and Csrr
@@ -402,20 +445,20 @@ sum of Ctlr and Cslr are both larger than Ctrr and Csrr
 # plot D_rr, A_rr, D_lr, A_lr
 par(mfrow=c(6,4))
 par(mar=c(1,1,1,1))
-plot(matrix(abs(A_rr[1,]), 21,21), border=NA,xlab="", ylab="",key=NULL,
+plot(matrix(A_rr[1,], 21,21), border=NA,xlab="", ylab="",key=NULL,
      main="A_Ridge")
 
 plot(D_rr[,1], type='l', xlab="", ylab="", main="D_Ridge")
 
-plot(matrix(abs(A_lr[1,]), 21,21), border=NA,xlab="", ylab="",key=NULL,
+plot(matrix(A_lr[1,], 21,21), border=NA,xlab="", ylab="",key=NULL,
      main="A_Lasso")
 plot(D_lr[,1], type='l', xlab="", ylab="", main="D_Lasso")
 
 for (i in 2:6){
-  plot(matrix(abs(A_rr[i,]), 21,21), border=NA,xlab="", ylab="", main="",key=NULL)
+  plot(matrix(A_rr[i,], 21,21), border=NA,xlab="", ylab="", main="",key=NULL)
   plot(D_rr[,i], type='l', xlab="", ylab="",main="")
 
-  plot(matrix(abs(A_lr[i,]), 21,21), border=NA,xlab="", ylab="",main="",key=NULL)
+  plot(matrix(A_lr[i,], 21,21), border=NA,xlab="", ylab="",main="",key=NULL)
   plot(D_lr[,i], type='l', xlab="", ylab="",main="")
 }
 
@@ -424,25 +467,34 @@ for (i in 2:6){
 
 Q2.5
 ```{r}
-# build PCA
-PC <- prcomp(D, center = TRUE, scale.=TRUE)
-eig.val <- get_eigenvalue(PC)
-(eig.val$eigenvalue)
-fviz_eig(PC, geom="line", choice = "eigenvalue", addlabels = TRUE)+ labs(title = "Eigenvalue-PCA", x = "Principal Components", y = "Eigenvalue")
+# build PCR model
+PC <- prcomp(D, scale.=TRUE)
+
+# get eigenvalue and plot them out
 (eig_pc <- PC$sdev^2)
+fviz_eig(PC, geom="line", choice = "eigenvalue", addlabels = TRUE)+ labs(title = "Eigenvalue-PCA", x = "Principal Components", y = "Eigenvalue")
+
 ```
 
 The 6th PC owns the minimum eigenvalue, 0.2. 
 
 ```{r}
 par(mfrow=c(1,2))
-par(mar=c(5.1, 2, 4.1, 2))
+par(mar=c(5.1, 2.1, 4.1, 4.1))
+
+# retrive Z from PCR model
 Z_pc <- PC$x
+
+# plot all Z
 Z_title<- c("Z_PC_1", "Z_PC_2", "Z_PC_3", "Z_PC_4", "Z_PC_5", "Z_PC_6")
+
 for (i in 1:6){
   plot(Z_pc[,i], type='l', xlab="", ylab="", main=Z_title[i])
   plot(TC[,i], type='l', xlab="", ylab="",main=TC_title[i])
 }
+```
+```{r}
+plot(cor(Z_pc), main="Correlation of time sources")
 ```
 
 ```{r}
@@ -467,21 +519,47 @@ for (k in 1:(21*21)) {
 }
 
 # use A_lr to estimate D_lr
+A_pcr <- abs(A_pcr)
 D_pcr <- X%*%t(A_pcr)
 ```
 
 ```{r}
+# plot A_pcr and D_pcr
 par(mfrow=c(1,2))
 par(mar=c(5.1, 3.1, 4.1, 4.1))
 Apcr_title<- c("A_PCR_1", "A_PCR_2", "A_PCR_3", "A_PCR_4", "A_PCR_5", "A_PCR_6")
 Dpcr_title<- c("D_PCR_1", "D_PCR_2", "D_PCR_3", "D_PCR_4", "D_PCR_5", "D_PCR_6")
 for (i in 1:6){
-  plot(matrix(abs(A_pcr[i,]), 21,21), border=NA,xlab="", ylab="", main=Apcr_title[i])
+  plot(matrix(A_pcr[i,], 21,21), border=NA,xlab="", ylab="", 
+        main=Apcr_title[i])
   plot(D_pcr[,i], type='l', xlab="", ylab="",main=Dpcr_title[i])
 }
 ```
+```{r}
+# evaluate the MSE of all four model
+(MSE_lsr <- sum((X-D_lsr%*%A_lsr)**2)/(240*441))
+(MSE_rr <- sum((X-D_rr%*%A_rr)**2)/(240*441))
+(MSE_lr <- sum((X-D_lr%*%A_lr)**2)/(240*441))
+(MSE_pcr <- sum((X-D_pcr%*%A_pcr)**2)/(240*441))
+
+MSE_all <- data.frame(MSE_lsr= sum((X-D_lsr%*%A_lsr)**2)/(240*441),
+                      MSE_rr=sum((X-D_rr%*%A_rr)**2)/(240*441), 
+                      MSE_lr = sum((X-D_lr%*%A_lr)**2)/(240*441),
+                      MSE_pcr=sum((X-D_pcr%*%A_pcr)**2)/(240*441))
+bar<- barplot(as.matrix(MSE_all))
+#text(x=bar, y=as.matrix(MSE_all), labels = as.matrix(MSE_all),  pos = 3, cex = 0.8)
+```
 
 ```{r}
+# evalaute which regressor contributes most for the first two PC
+para <- get_pca_var(PC)
+plot(Z_pc[,1], Z_pc[,2])
+fviz_contrib(PC, choice = "var", axes = 1:2)
+```
+The 5th, 6th and 4th contributes most in first two PCs.
+
+```{r}
+# compare spatial maps across four models
 par(mfrow=c(6,4))
 par(mar=c(1,1,1,1))
 
@@ -490,7 +568,7 @@ plot(matrix(abs(A_lsr[1,]), 21,21), border=NA,xlab="", ylab="",key=NULL,
      main="A_LSR")
 
 plot(matrix(abs(A_rr[1,]), 21,21), border=NA,xlab="", ylab="",key=NULL,
-     main="A_Ridge")
+     main="A_Ridge") 
 
 plot(matrix(abs(A_lr[1,]), 21,21), border=NA,xlab="", ylab="",key=NULL,
      main="A_Lasso")
@@ -514,6 +592,7 @@ plot(matrix(abs(A_pcr[i,]), 21,21), border=NA,xlab="", ylab="",key=NULL,
 ```
 
 ```{r}
+# compare temporal souces across four models
 par(mfrow=c(6,4))
 par(mar=c(1,1,1,1))
 
@@ -530,7 +609,4 @@ for (i in 2:6){
   plot(D_pcr[,i], type='l', xlab="", ylab="", main="")
 
 }
-```
-
-```{r}
 ```
