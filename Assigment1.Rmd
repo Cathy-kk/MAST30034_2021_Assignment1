@@ -36,6 +36,12 @@ TC_4 <- c(rep(rep(c(1,0), c(15, 40-15)), length.out=240))
 TC_5 <- c(rep(rep(c(1,0), c(20, 40-20)), length.out=240))
 TC_6 <- c(rep(rep(c(1,0), c(25, 40-25)), length.out=240))
 TC <- matrix(c(TC_1, TC_2, TC_3, TC_4, TC_5, TC_6), 240,6)
+
+# evaluate mean and variance of TC
+colMeans(TC)
+colVars(TC)
+
+# scale TC
 TC <- scale(TC)
 TC_title<- c("TC_1", "TC_2", "TC_3", "TC_4", "TC_5", "TC_6")
 
@@ -46,17 +52,6 @@ for (i in (1:6)){
 
 ```
 
-```{r}
-# we normalize TC with L-2 norm, plot all TC after normalization
-par(mfrow=c(2,3))
-TC_normal <- matrix(c(TC_1, TC_2, TC_3, TC_4, TC_5, TC_6), 240,6)
-for (i in (1:6)){
-  TC_normal[,i] <- TC_normal[,i]/sqrt(sum(TC_normal[,i]**2))
-  plot(TC_normal[,i], type='l', xlab="", ylab="", main=TC_title[i])
-}
-```
-
-Data are in range around 0 to 0.1.
 
 Q 1.2
 ```{r}
@@ -110,43 +105,13 @@ Explore why not standardize tmpSM
 # means and variance of SM source
 rowMeans(tmpSM)
 rowVars(tmpSM)
+
+# plots after standardize of SM
 par(mfrow=c(2,3))
 SM_standard_title <-c("SM_standard_1","M_standard_2","M_standard_3","M_standard_4","M_standard_5","M_standard_6")
 for (i in 1:6){
   plot(matrix(scale(tmpSM[i,]), 21, 21), border=NA, xlab="", ylab="", main=SM_standard_title[i])
 }
-```
-```{r}
-# visualize pixel value 5 and 1
-par(mfrow=c(1,2))
-par(mar=c(5.1, 4.1, 4.1, 4.1))
-tmpSM_1.new<- matrix(rep(0, 441), 21,21)
-tmpSM_1.new[c(2:6), c(2:6)] <- 1
-tmpSM_1.new[2,2] <- 5
-plot(tmpSM_1.new, border=NA,xlab="", ylab="")
-plot(matrix(scale(as.vector(tmpSM_1.new)), 21,21))
-(mean(as.vector(tmpSM_1.new)))
-
-tmpSM_2<- matrix(rep(0, 441), 21,21)
-tmpSM_2[c(2:6), c(15:19)] <- 1
-plot(tmpSM_2, border=NA, xlab="", ylab="")
-
-tmpSM_3<- matrix(rep(0, 441), 21,21)
-tmpSM_3[c(8:13), c(2:6)] <- 1
-plot(tmpSM_3, border=NA, xlab="", ylab="")
-
-tmpSM_4<- matrix(rep(0, 441), 21,21)
-tmpSM_4[c(8:13), c(15:19)] <- 1
-plot(tmpSM_4, border=NA, xlab="", ylab="")
-
-tmpSM_5<- matrix(rep(0, 441), 21,21)
-tmpSM_5[c(15:19), c(2:6)] <- 1
-plot(tmpSM_5, border=NA, xlab="", ylab="")
-
-tmpSM_6<- matrix(rep(0, 441), 21,21)
-tmpSM_6[c(15:19), c(15:19)] <- 1
-plot(tmpSM_6, border=NA, xlab="", ylab="")
-
 ```
 Q 1.4
 ```{r}
@@ -271,7 +236,7 @@ D_rr_random <- X%*%t(A_rr_random)
 D_rr <- X%*%t(A_rr)
 ```
 
-The $\lambda\$ we use is 0.8990044。
+The $\lambda$ we use is 0.8990044。
 
 
 ```{r}
