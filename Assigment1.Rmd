@@ -364,7 +364,6 @@ rho_lr <- rho[index]
 paste("The value of rho with minimum MSE is",rho_lr)
 ```
 
-At the minimum MSE, \rho = 0.6, the value of average MSE is 0.7659844
 
 Q2.4
 ```{r}
