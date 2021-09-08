@@ -1,8 +1,8 @@
 # MAST30034_2021_Assignment1
 - Student Name: Kaixin Yu
 - Student ID: 1118795
-- Due Date: Friday 10th of September 11:59:00 am (AEST).
-- Report Link: 
+- Due Date: Friday 10th of September 11:59:00 pm (AEST).
+- Report Link: https://www.overleaf.com/read/dqqbggfhwgdq
 
 # Dependencies
 - Language: R
