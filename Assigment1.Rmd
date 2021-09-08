@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+# please install the comment package if the packages are not installed
 #install.packages("corrplot")
 #install.packages("factoextra")
 library('plot.matrix')
