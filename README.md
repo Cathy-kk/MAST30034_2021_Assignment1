@@ -7,7 +7,9 @@
 # Dependencies
 - Language: R
 - Packages / Libraries: corrplot, factoextra, plot.matrix, reshape2, ggplot2, matrixStats
+* please uncomment the `install package` line in code chunk 2 if your computer does not install those    package.
 
 # Files
 - `Assignment1.Rmd`: R code for this assignment question and requirement.
 - `Assignment1.html`: R markdown file contains all code and output.
+
